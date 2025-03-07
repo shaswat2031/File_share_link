@@ -7,28 +7,44 @@ const FileUpload = () => {
     const [file, setFile] = useState(null);
     const [link, setLink] = useState("");
     const [expiry, setExpiry] = useState(10); // Default expiry 10 min
+    const [fileName, setFileName] = useState(""); // To display file name
+
+    // Handle file selection
+    const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+        if (selectedFile) {
+            setFile(selectedFile);
+            setFileName(selectedFile.name);
+        }
+    };
 
     const handleUpload = async () => {
         if (!file) return alert("Please select a file!");
 
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("expiry", expiry);
+        formData.append("expiry", parseInt(expiry)); // Convert to integer
 
         try {
-            const res = await axios.post("http://localhost:5000/upload", formData);
+            const res = await axios.post("https://filebackend-egisej53m-prasadshaswat123s-projects.vercel.app/upload", formData);
             setLink(res.data.downloadLink);
         } catch (err) {
             console.error(err);
-            alert("Upload failed, try again.");
+            alert("Upload failed, please try again.");
         }
     };
 
     return (
         <div className="upload-container">
-            <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+            <input 
+                type="file" 
+                accept="image/*, application/pdf, application/zip, text/plain" // Allows only certain file types
+                onChange={handleFileChange} 
+            />
             
-            <select onChange={(e) => setExpiry(e.target.value)}>
+            {fileName && <p>Selected File: {fileName}</p>} {/* Display selected file name */}
+
+            <select onChange={(e) => setExpiry(parseInt(e.target.value))}>
                 <option value="5">5 minutes</option>
                 <option value="10">10 minutes</option>
                 <option value="15">15 minutes</option>
